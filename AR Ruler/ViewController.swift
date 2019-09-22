@@ -17,6 +17,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     // array to keep track of all the dots in the scene
     var dotNodes = [SCNNode]()
     
+    // node of the 3D text
+    var textNode = SCNNode()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -49,6 +52,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     
     // a touch was detected on screen
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // when adding a third point we remove all the previous points to have a fresh start
+        if dotNodes.count >= 2 {
+            for dot in dotNodes {
+                dot.removeFromParentNode()
+            }
+            // clear the array
+            dotNodes = [SCNNode]()
+        }
+
+        
         // grab the location of the 2D tap...
         if let touchLocation = touches.first?.location(in: sceneView) {
             //  ...and turn it into a 3D location of a continuous surface
@@ -102,20 +115,23 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             pow(end.position.x - start.position.x, 2) +
             pow(end.position.y - start.position.y, 2) +
             pow(end.position.z - start.position.z, 2)
-        )
+        ) * 100
         
         // update the 3D text
-        updateText(text: "\(distance)", atPosition: end.position)
+        updateText(text: String(format: "%.2f", distance) + " cm", atPosition: end.position)
         
     }
     
     // update the 3D text on the scene
     func updateText(text: String, atPosition position: SCNVector3) {
+        // remove the previous text if exists
+        textNode.removeFromParentNode()
+        
         // create a text geometry
         let textGeometry = SCNText(string: text, extrusionDepth: 1.0)
         textGeometry.firstMaterial?.diffuse.contents = UIColor.red
         
-        let textNode = SCNNode(geometry: textGeometry)
+        textNode = SCNNode(geometry: textGeometry)
         textNode.position = SCNVector3(position.x, position.y + 0.01, position.z)
         textNode.scale = SCNVector3(0.01, 0.01, 0.01)
         
