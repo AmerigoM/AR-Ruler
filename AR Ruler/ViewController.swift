@@ -92,6 +92,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         }
     }
     
+    // calculate the distance between two points
     func calculate() {
         let start = dotNodes[0]
         let end = dotNodes[1]
@@ -104,7 +105,21 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         )
         
         // update the 3D text
-        //updateText(text: "\(distance)")
+        updateText(text: "\(distance)", atPosition: end.position)
+        
+    }
+    
+    // update the 3D text on the scene
+    func updateText(text: String, atPosition position: SCNVector3) {
+        // create a text geometry
+        let textGeometry = SCNText(string: text, extrusionDepth: 1.0)
+        textGeometry.firstMaterial?.diffuse.contents = UIColor.red
+        
+        let textNode = SCNNode(geometry: textGeometry)
+        textNode.position = SCNVector3(position.x, position.y + 0.01, position.z)
+        textNode.scale = SCNVector3(0.01, 0.01, 0.01)
+        
+        sceneView.scene.rootNode.addChildNode(textNode)
         
     }
 
